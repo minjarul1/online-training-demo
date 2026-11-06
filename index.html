@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Online Training System – Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f7fb;--cd:#fff;--tx:#14213d;--mu:#5b667a;--bd:#e2e7f0;--pr:#0b2545;--ac:#2563eb;--ok:#16a34a;--md:#f59e0b;--bad:#dc2626;--nt:#eef4ff;--hb:#fff;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1420;--cd:#171f2f;--tx:#e8edf7;--mu:#9aa6bd;--bd:#27324a;--pr:#9ec1ff;--ac:#6ea0ff;--nt:#1a2744;--hb:#171f2f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1420;--cd:#171f2f;--tx:#e8edf7;--mu:#9aa6bd;--bd:#27324a;--pr:#9ec1ff;--ac:#6ea0ff;--nt:#1a2744;--hb:#171f2f;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.55 'Noto Sans Bengali','Inter',system-ui,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--hb);z-index:10}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--hb);border-bottom:1px solid var(--bd);padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.logo{font-weight:700;color:var(--pr);margin-right:auto}
+.logo small{display:block;font-weight:400;color:var(--mu);font-size:12px}
+button{font:inherit;cursor:pointer;border:1px solid var(--bd);background:var(--cd);color:var(--tx);border-radius:10px;padding:6px 12px}
+.tabs button.on,.lang button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.tabs,.lang{display:flex;gap:6px}
+main{max-width:1100px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:4px 0 12px;color:var(--pr)}
+h2{font-size:16px;margin:0 0 10px}
+.g{display:grid;gap:14px;margin-bottom:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.cd{background:var(--cd);border:1px solid var(--bd);border-radius:14px;padding:16px;min-width:0}
+.note{background:var(--nt);border-left:4px solid var(--ac);border-radius:8px;padding:8px 12px;margin:10px 0 0;font-size:13px;color:var(--tx)}
+.kpi b{display:block;font-size:26px;color:var(--pr)}
+.kpi span,.mu{color:var(--mu);font-size:13px}
+.row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--bd)}
+.row:first-of-type{border-top:0}
+.rb{padding:4px 9px;font-size:13px}
+.rb.on2{background:var(--ok);color:#fff;border-color:var(--ok)}
+.rb.on1{background:var(--md);color:#fff;border-color:var(--md)}
+.rb.on0{background:var(--bad);color:#fff;border-color:var(--bad)}
+.bar{height:10px;border-radius:6px;background:var(--bd);overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.chip{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;background:var(--nt);color:var(--ac);margin:2px 4px 2px 0}
+.chip.done{background:var(--ok);color:#fff}
+.chip.cur{background:var(--md);color:#fff}
+.sc{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+td,th{padding:6px 8px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+.hm{display:grid;grid-template-columns:auto repeat(8,1fr);gap:3px;min-width:380px}
+.hm div{height:26px;border-radius:5px;font-size:11px;display:flex;align-items:center;justify-content:center}
+.hm .n{justify-content:flex-start;padding-right:8px;white-space:nowrap}
+.c2{background:var(--ok)}.c1{background:var(--md)}.c0{background:var(--bad)}
+.lg span{margin-right:12px;font-size:12px}
+.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><span data-k="app"></span><small data-k="demo"></small></div>
+  <div class="tabs" id="tabs"></div>
+  <div class="lang"><button id="lb" onclick="setL('bn')">বাংলা</button><button id="le" onclick="setL('en')">EN</button></div>
+  <button id="nb" onclick="N=!N;render()"></button>
+  <button id="ob" onclick="net()"></button>
+</header>
+<main id="app"></main>
+<script>
+const T={
+app:["অনলাইন প্রশিক্ষণ সিস্টেম","Online Training System"],
+demo:["ডেমো — নমুনা তথ্য","Demo — sample data"],
+student:["শিক্ষার্থী","Student"],teacher:["শিক্ষক","Teacher"],admin:["অ্যাডমিন","Admin"],
+notes:["ডিজাইন নোট: চালু","Design notes: ON"],notesOff:["ডিজাইন নোট: বন্ধ","Design notes: OFF"],
+intro:["কীভাবে দেখবেন: উপরের ট্যাবে ভূমিকা (শিক্ষার্থী/শিক্ষক/অ্যাডমিন) বদলান, ভাষা বদলান, আর নীল ⓘ বক্সে প্রতিটি অংশের ব্যাখ্যা পড়ুন। এখানকার সব তথ্য নমুনা।","How to view: switch the role in the top tabs, switch language, and read the blue ⓘ boxes for the reason behind each section. All data here is sample data."],
+hello:["স্বাগতম, রাহিম","Welcome, Rahim"],
+overall:["মোট অগ্রগতি","Overall progress"],
+today:["আজকের ক্লাস","Today’s class"],
+ct:["ক্লাস ৩: MS Word CV — Pictures ও Hyperlinks","Class 3: MS Word CV — Pictures & Hyperlinks"],
+can:["পারি","Can do"],mid:["মোটামুটি","Somewhat"],cant:["পারি না","Can’t yet"],
+hist:["পরিবর্তনের ইতিহাস (কখনো মোছা হয় না)","Change history (never deleted)"],
+noh:["এখনো পরিবর্তন নেই — যেকোনো রেটিং বদলে দেখুন","No changes yet — try changing any rating"],
+res:["ক্লাস রিসোর্স","Class resources"],rev:["আবার অনুশীলন করুন","Needs revision"],
+trend:["ক্লাসভিত্তিক অগ্রগতি (%)","Progress by class (%)"],
+rpdf:["📄 ক্লাস নোট (PDF)","📄 Class notes (PDF)"],rvid:["🎬 ভিডিও রেফারেন্স (YouTube)","🎬 Video reference (YouTube)"],rfile:["📎 প্র্যাকটিস ফাইল","📎 Practice file"],
+ns1:["লেআউট: উপরে ‘আমি কোথায় আছি’ (অগ্রগতি), মাঝে ‘এখন কী করব’ (আজকের চেকলিস্ট), নিচে সহায়ক জিনিস (রিসোর্স, পুনরায় অনুশীলন)। শিক্ষার্থী যেন ফোনে এক স্ক্রল-এ সব দেখে।","Layout: top = ‘where am I’ (progress), middle = ‘what do I do now’ (today’s checklist), bottom = support (resources, revision). Everything fits one mobile scroll."],
+ns2:["রেটিং বদলালে পুরনো মান ইতিহাসে জমা হয়। শিক্ষক দেখতে পান শিক্ষার্থী কত দ্রুত উন্নতি করছে।","Changing a rating stores the old value in history. The teacher can see how fast a student improves."],
+ns3:["‘পারি না’ ও ‘মোটামুটি’ দক্ষতা পরের ক্লাসের চেকলিস্টে আপনাআপনি ফিরে আসে (স্পেসড রিভিশন)।","Skills marked ‘Can’t yet’ or ‘Somewhat’ automatically return in the next checklists (spaced revision)."],
+th:["শিক্ষকের ড্যাশবোর্ড — ব্যাচ A","Teacher dashboard — Batch A"],
+bld:["ক্লাস বিল্ডার: docx → চেকলিস্ট","Class builder: docx → checklist"],
+s1:["docx আপলোড","Upload docx"],s2:["কাঠামো পড়া","Parse structure"],s3:["AI খসড়া","AI draft"],s4:["শিক্ষক রিভিউ","Teacher review"],s5:["প্রকাশ","Publish"],
+dr:["খসড়া সারি (সম্পাদনাযোগ্য)","Draft rows (editable)"],
+pub:["শিক্ষার্থীদের জন্য প্রকাশ করুন","Publish to students"],pubd:["প্রকাশিত ✓","Published ✓"],
+tag1:["ধাপ থেকে","from Steps"],tag2:["সাধারণ ভুল থেকে","from Common mistakes"],
+heat:["হিটম্যাপ: শিক্ষার্থী × দক্ষতা","Heatmap: students × skills"],
+per:["প্রতিটি দক্ষতায় ক্লাসের অবস্থা","Class status per skill"],
+risk:["ঝুঁকিতে থাকা শিক্ষার্থী","At-risk students"],
+acc:["রিসোর্স ও অ্যাক্সেস","Resources & access"],
+nt1:["‘এক নজরে’ নীতি: শিক্ষক আগে দেখেন কোন দক্ষতায় পুরো ক্লাস দুর্বল (লাল কলাম) — তাহলে পরের ক্লাসে কী আবার পড়াবেন তা বোঝা যায়।","‘At a glance’ principle: the teacher first sees which skill the whole class is weak in (red column) and knows what to re-teach."],
+nt2:["বিল্ডার ৫ ধাপের: AI খসড়া দেয়, কিন্তু প্রকাশের আগে শিক্ষক অবশ্যই রিভিউ করেন। এতে ভুল বা বাদ পড়া সারি আটকানো যায়।","The builder has 5 steps: AI drafts, but the teacher must review before publishing. This prevents wrong or missing rows."],
+nt3:["ব্যক্তিগত ও দলগত দুই দৃশ্যই আছে: নামে ক্লিক করলে একজনের প্রোফাইল (এই ডেমোতে শুধু তালিকা)।","Both individual and group views exist: clicking a name opens one student’s profile (list only in this demo)."],
+ah:["অ্যাডমিন / হেড টিচার — সম্পূর্ণ নিয়ন্ত্রণ","Admin / Head teacher — full control"],
+k1:["শিক্ষার্থী","Students"],k2:["শিক্ষক","Teachers"],k3:["ব্যাচ","Batches"],k4:["গড় সমাপ্তি","Avg. completion"],
+bc:["ব্যাচ তুলনা (সমাপ্তি %)","Batch comparison (completion %)"],
+wk:["প্রতিষ্ঠান জুড়ে সবচেয়ে দুর্বল দক্ষতা","Weakest skills across the institute"],
+au:["অডিট লগ","Audit log"],pm:["অনুমতি (Role-based)","Permissions (role-based)"],
+na1:["লেআউট: উপরে KPI (প্রতিষ্ঠান ভালো চলছে কি?), মাঝে তুলনা ও দুর্বলতা (কোথায় সমস্যা?), নিচে লগ ও অনুমতি (কে কী করল / করতে পারে)।","Layout: top = KPIs (is the institute healthy?), middle = comparisons and weak spots (where is the problem?), bottom = logs and permissions (who did / can do what)."],
+na2:["সব পরিবর্তনের রেকর্ড অডিট লগে থাকে — তাই চেকলিস্ট বদল বা ডেটা পরিবর্তন নিয়ে বিতর্ক হলে প্রমাণ থাকে।","Every change is recorded in the audit log, so there is proof if a checklist or data change is questioned."],
+f1:["নিজের চেকলিস্ট দেখা ও বদলানো","View & edit own checklist"],f2:["ক্লাস ও চেকলিস্ট তৈরি","Create class & checklist"],f3:["ব্যাচের বিশ্লেষণ","Batch analytics"],f4:["সব ডেটা ও ইউজার ম্যানেজ","Manage all data & users"],
+onl:["📶 অনলাইন","📶 Online"],offl:["📴 অফলাইন","📴 Offline"],
+offb:["অফলাইন মোড: আপনার পরিবর্তন এই ফোনে সেভ থাকছে, নেটওয়ার্ক এলে নিজে থেকে সিঙ্ক হবে","Offline mode: your changes are saved on this device and will sync when the network returns"],
+pend:["টি সিঙ্কের অপেক্ষায়","pending sync"],synd:["টি পরিবর্তন সিঙ্ক হয়েছে","changes synced"],
+ptt:["প্র্যাকটিস টাস্ক: গোল প্রোফাইল ছবি","Practice task: round profile picture"],ptask:["ক্লাসে শেখা দক্ষতা ৪–৬ প্রয়োগ করে ছবিটি বানান।","Apply skills 4–6 and make the picture."],
+pred:["জমা দেওয়ার আগে অনুমান করুন: আপনি কতটা পারবেন?","Before submitting, predict: how well will you do?"],att:["📎 স্ক্রিনশট যোগ করুন","📎 Attach screenshot"],subm:["শিক্ষকের কাছে জমা দিন","Submit to teacher"],
+wait:["শিক্ষকের যাচাইয়ের অপেক্ষায়","Waiting for teacher check"],vd:["শিক্ষকের ফল","Teacher result"],
+cm:["আপনার অনুমান শিক্ষকের ফলের সঙ্গে মিলেছে — চমৎকার!","Your prediction matched the teacher’s result — well done!"],
+co:["আপনি একটু বেশি আশা করেছিলেন। সমস্যা নেই — ধাপগুলো আবার দেখে আবার চেষ্টা করুন।","You expected a little more. No problem — review the steps and try again."],
+cu:["আপনি নিজের অনুমানের চেয়ে ভালো করেছেন! আত্মবিশ্বাস রাখুন।","You did better than you predicted! Keep your confidence up."],
+acc2:["নিজের রেটিং বনাম শিক্ষকের রেটিং: মিল","Self-rating vs teacher rating: matches"],tv:["শিক্ষক","Teacher"],
+mtc:["✓ শিক্ষকের সঙ্গে মিলেছে","✓ Matches teacher"],ov:["শিক্ষক একটু কম দেখেছেন — আবার অনুশীলন করুন","Teacher saw a bit less — practise again"],
+un:["আপনি ভাবার চেয়ে ভালো পারেন 🎉","You’re better than you think 🎉"],unv:["শিক্ষকের যাচাই বাকি","Awaiting teacher check"],
+ns4:["‘অনুমান → প্রমাণ → শিক্ষকের যাচাই → তুলনা’ চক্র শিক্ষার্থীকে নিজের দক্ষতা সঠিকভাবে বুঝতে শেখায়। ফল উৎসাহমূলক ভাষায় দেখানো হয়, কারণ বেশি আত্মবিশ্বাসী শিক্ষার্থী ভুল ধরা পড়লে মন খারাপ করে।","The ‘predict → evidence → teacher check → compare’ cycle helps students judge their own skill accurately. Results use encouraging wording, because overconfident students feel worse when shown a gap."],
+vq:["যাচাইয়ের কিউ (প্র্যাকটিস টাস্ক)","Verification queue (practice task)"],vqe:["এখনো কোনো জমা নেই। শিক্ষার্থী ট্যাব থেকে প্র্যাকটিস টাস্ক জমা দিয়ে দেখুন।","No submissions yet. Submit the practice task from the Student tab to see it here."],conf:["শিক্ষার্থীর অনুমান","Student’s prediction"],
+nt4:["শিক্ষক এক ক্লিকে ফল দেন; ফল সংশ্লিষ্ট চেকলিস্ট সারিতে (৪–৬) যুক্ত হয় এবং শিক্ষার্থী নিজের রেটিংয়ের সঙ্গে তুলনা দেখে।","The teacher gives the result in one click; it is applied to the related checklist rows (4–6) and the student sees it against their own rating."],
+rem:["রিমাইন্ডার পাঠান","Send reminder"],sentt:["পাঠানো হয়েছে ✓","Sent ✓"],ew:["আগাম সতর্কতা","Early warning"],
+ewn:["নিয়ম: ৩টি বা বেশি ‘পারি না’, অথবা ২টি চেকলিস্ট বাকি থাকলে শিক্ষার্থী এই তালিকায় আসে। শিক্ষক এক ক্লিকে রিমাইন্ডার পাঠান।","Rule: 3 or more ‘Can’t yet’, or 2 missed checklists, puts a student on this list. The teacher sends a reminder in one click."]
+};
+const IT=[["ছবির উৎস চেনা ও ইনসার্ট করা","Identify picture sources & insert"],["Crop ও Resize-এর পার্থক্য","Crop vs Resize difference"],["Picture Format ও In Front of Text","Picture Format & In Front of Text"],["Aspect Ratio 1:1 দেওয়া","Set Aspect Ratio 1:1"],["Crop to Shape ▸ Oval","Crop to Shape ▸ Oval"],["Picture Border (নেভি, 4½ pt)","Picture Border (navy, 4½ pt)"],["Ctrl+K দিয়ে ইমেইল/ওয়েব লিংক","Email/web link with Ctrl+K"],["Edit ও Remove Hyperlink","Edit & Remove Hyperlink"]];
+const NM=[["রাহিম","Rahim"],["সুমাইয়া","Sumaiya"],["তানভীর","Tanvir"],["নুসরাত","Nusrat"],["ফাহিম","Fahim"],["মিম","Mim"],["আরিফ","Arif"],["জান্নাত","Jannat"]];
+const M=["22121022","21210212","12201120","22222112","00102011","21122210","10011001","22212122"];
+const BT=[["ব্যাচ A","Batch A",86],["ব্যাচ B","Batch B",78],["ব্যাচ C","Batch C",91],["ব্যাচ D","Batch D",64]];
+let L='bn',R='student',N=true,P=false,rate=[2,2,1,1,0,0,-1,-1],H=[],TR=[2,1,2,-1,-1,-1,-1,-1],sub={st:'none',conf:-1,file:'',res:-1},sent={},OFF=false,pend=0,syn=0;
+const t=k=>T[k][L==='bn'?0:1],x=a=>a[L==='bn'?0:1];
+const nt=k=>N?`<p class="note">ⓘ ${t(k)}</p>`:'';
+const COL=['var(--bad)','var(--md)','var(--ok)'];
+function setL(l){L=l;document.documentElement.lang=l;render()}
+function setR(r){R=r;render()}
+function setRate(i,v){if(rate[i]===v)return;if(OFF)pend++;H.unshift({i,f:rate[i],to:v,tm:new Date().toLocaleTimeString()});rate[i]=v;render()}
+function lab(v){return v<0?'—':[t('cant'),t('mid'),t('can')][v]}
+function setConf(v){sub.conf=v;render()}
+function attach(){sub.file='rahim_profile.png';render()}
+function subm(){if(sub.conf<0||!sub.file)return;sub.st='sent';if(OFF)pend++;render()}
+function verify(v){sub.st='verified';sub.res=v;[3,4,5].forEach(i=>TR[i]=v);render()}
+function net(){OFF=!OFF;if(!OFF){syn=pend;pend=0}else syn=0;render()}
+function gp(i){const v=TR[i];if(v<0||rate[i]<0)return`<span class="chip">${t('unv')}</span>`;const d=rate[i]-v;return`<span class="chip ${d==0?'done':d>0?'cur':''}">${d==0?t('mtc'):d>0?t('ov'):t('un')}</span> <span class="mu">${t('tv')}: ${lab(v)}</span>`}
+function practice(){
+ const dis=sub.st!=='none'?'disabled':'';
+ const c=[2,1,0].map(v=>`<button class="rb ${sub.conf===v?'on'+v:''}" ${dis} onclick="setConf(${v})">${lab(v)}</button>`).join(' ');
+ let s=`<p class="mu">${t('ptask')}</p><p><b>1.</b> ${t('pred')}<br>${c}</p><p><b>2.</b> <button class="rb" ${dis} onclick="attach()">${sub.file?'📎 '+sub.file:t('att')}</button></p><p><b>3.</b> `;
+ s+=sub.st==='none'?`<button style="background:var(--ac);color:#fff" ${sub.conf<0||!sub.file?'disabled':''} onclick="subm()">${t('subm')}</button>`:sub.st==='sent'?`<span class="chip cur">${t('wait')}</span>`:`<span class="chip done">${t('vd')}: ${lab(sub.res)}</span>`;
+ s+='</p>';
+ if(sub.st==='verified'){const d=sub.conf-sub.res;s+=`<p class="note">${d==0?t('cm'):d>0?t('co'):t('cu')}</p>`}
+ const ver=rate.map((v,i)=>[v,TR[i]]).filter(a=>a[0]>=0&&a[1]>=0),ok=ver.filter(a=>a[0]===a[1]).length;
+ s+=`<p class="mu">${t('acc2')}: <b>${ok}/${ver.length}</b></p>`;
+ return `<div class="cd"><h2>🧪 ${t('ptt')}</h2>${s}${nt('ns4')}</div>`}
+function EWL(){const MS=[0,0,1,0,2,0,2,0];return M.map((r,s)=>{const z=[...r].filter(c=>c==='0').length,rs=[];if(z>=3)rs.push(z+' × '+t('cant'));if(MS[s]>=2)rs.push(L==='bn'?`${MS[s]}টি চেকলিস্ট বাকি`:`${MS[s]} checklists missed`);return [s,rs]}).filter(a=>a[1].length)}
+function ring(p){const r=42,c=2*Math.PI*r;return `<svg width="110" height="110" viewBox="0 0 110 110"><circle cx="55" cy="55" r="${r}" fill="none" stroke="var(--bd)" stroke-width="10"/><circle cx="55" cy="55" r="${r}" fill="none" stroke="var(--ok)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${c*p/100} ${c}" transform="rotate(-90 55 55)"/><text x="55" y="61" text-anchor="middle" font-size="22" font-weight="700" fill="var(--pr)">${p}%</text></svg>`}
+function student(){
+ const sc=rate.reduce((a,v)=>a+Math.max(v,0),0),p=Math.round(sc/16*100);
+ const rows=IT.map((it,i)=>`<div class="row"><span>${String(i+1).padStart(2,'0')}. ${x(it)}<br>${gp(i)}</span><span>${[2,1,0].map(v=>`<button class="rb ${rate[i]===v?'on'+v:''}" onclick="setRate(${i},${v})">${['','',''].length&&lab(v)}</button>`).join(' ')}</span></div>`).join('');
+ const hs=H.length?H.slice(0,5).map(h=>`<div class="row mu"><span>${String(h.i+1).padStart(2,'0')}: ${lab(h.f)} → <b>${lab(h.to)}</b></span><span>${h.tm}</span></div>`).join(''):`<span class="mu">${t('noh')}</span>`;
+ const rv=rate.map((v,i)=>v<2&&v>=0?`<span class="chip">${x(IT[i])}</span>`:'').join('')||'—';
+ const pts=[38,52,61,p].map((v,i)=>`${30+i*80},${100-v}`).join(' ');
+ return `<h1>${t('hello')}</h1>
+ <div class="g g2"><div class="cd" style="display:flex;gap:16px;align-items:center">${ring(p)}<div><h2>${t('overall')}</h2><span class="mu">${t('today')}</span><br><b>${t('ct')}</b></div></div>
+ <div class="cd"><h2>${t('trend')}</h2><svg viewBox="0 0 280 110" width="100%"><polyline fill="none" stroke="var(--ac)" stroke-width="3" points="${pts}"/>${[38,52,61,p].map((v,i)=>`<circle cx="${30+i*80}" cy="${100-v}" r="4" fill="var(--ac)"/><text x="${30+i*80}" y="${90-v}" font-size="11" text-anchor="middle" fill="var(--mu)">${v}</text>`).join('')}</svg></div></div>
+ ${nt('ns1')}
+ <div class="g g2" style="margin-top:14px"><div class="cd"><h2>✅ ${t('ct')}</h2>${rows}${nt('ns2')}</div>
+ <div style="display:grid;gap:14px;align-content:start">${practice()}<div class="cd"><h2>🕘 ${t('hist')}</h2>${hs}</div>
+ <div class="cd"><h2>📚 ${t('res')}</h2><div class="row"><span>${t('rpdf')}</span></div><div class="row"><span>${t('rvid')}</span></div><div class="row"><span>${t('rfile')}</span></div></div>
+ <div class="cd"><h2>🔁 ${t('rev')}</h2>${rv}${nt('ns3')}</div></div></div>`}
+function teacher(){
+ const cnt=i=>[0,1,2].map(v=>M.filter(r=>+r[i]===v).length);
+ const zs=M.map((r,i)=>[i,[...r].filter(c=>c==='0').length]).sort((a,b)=>b[1]-a[1]).slice(0,3);
+ const steps=['s1','s2','s3','s4','s5'].map((k,i)=>`<span class="chip ${i<3||(P&&i<5)?'done':i==3&&!P?'cur':''}">${i+1}. ${t(k)}</span>`).join('');
+ const hm=`<div class="hm"><div></div>${IT.map((it,i)=>`<div title="${x(it)}" class="mu">${i+1}</div>`).join('')}${M.map((r,s)=>`<div class="n">${NM[s][L==='bn'?0:1]}</div>${[...r].map(c=>`<div class="c${c}"></div>`).join('')}`).join('')}</div>
+ <p class="lg mu"><span><i class="c2"></i>${t('can')}</span><span><i class="c1"></i>${t('mid')}</span><span><i class="c0"></i>${t('cant')}</span></p>`;
+ const bars=IT.map((it,i)=>{const c=cnt(i);return `<div style="margin:8px 0"><div class="mu">${i+1}. ${x(it)}</div><div class="bar">${[2,1,0].map(v=>`<i style="width:${c[v]/8*100}%;background:${COL[v]}"></i>`).join('')}</div></div>`}).join('');
+ return `<h1>${t('th')}</h1>
+ <div class="cd"><h2>🛠 ${t('bld')}</h2><div>${steps}</div><h2 style="margin-top:12px">${t('dr')}</h2>
+ ${[0,1,4].map((i,k)=>`<div class="row"><span>${String(i+1).padStart(2,'0')}. ${x(IT[i])} <span class="chip">${t(k==1?'tag2':'tag1')}</span></span><span>✏️ 🗑</span></div>`).join('')}
+ <p><button style="background:var(--ac);color:#fff" onclick="P=!P;render()">${P?t('pubd'):t('pub')}</button></p>${nt('nt2')}</div>
+ <div class="cd" style="margin-top:14px"><h2>🧪 ${t('vq')}</h2>${sub.st==='none'?`<span class="mu">${t('vqe')}</span>`:`<div class="row"><span>${NM[0][L==='bn'?0:1]} — ${sub.file} <span class="chip">${t('conf')}: ${lab(sub.conf)}</span></span><span>${sub.st==='verified'?`<span class="chip done">${t('vd')}: ${lab(sub.res)}</span>`:[2,1,0].map(v=>`<button class="rb" onclick="verify(${v})">${lab(v)}</button>`).join(' ')}</span></div>`}${nt('nt4')}</div>
+ <div class="g g2" style="margin-top:14px"><div class="cd"><h2>🔥 ${t('heat')}</h2><div class="sc">${hm}</div>${nt('nt1')}</div>
+ <div class="cd"><h2>📊 ${t('per')}</h2>${bars}</div></div>
+ <div class="g g2"><div class="cd"><h2>⚠️ ${t('ew')}</h2>${EWL().map(([s,r])=>`<div class="row"><span>${NM[s][L==='bn'?0:1]} ${r.map(q=>`<span class="chip">${q}</span>`).join('')}</span><button class="rb" onclick="sent[${s}]=1;render()">${sent[s]?t('sentt'):'💬 '+t('rem')}</button></div>`).join('')}${nt('ewn')}</div>
+ <div class="cd"><h2>🔐 ${t('acc')}</h2><div class="row"><span>${t('rpdf')}</span><span class="chip">A, B</span></div><div class="row"><span>${t('rvid')}</span><span class="chip">A</span></div><div class="row"><span>${t('rfile')}</span><span class="chip">${L==='bn'?'ব্যক্তিগত':'Individual'}</span></div></div></div>`}
+function admin(){
+ const k=[['k1','240'],['k2','8'],['k3','4'],['k4','80%']].map(([a,b])=>`<div class="cd kpi"><b>${b}</b><span>${t(a)}</span></div>`).join('');
+ const bt=BT.map(b=>`<div style="margin:8px 0"><div class="mu">${x(b)} — ${b[2]}%</div><div class="bar"><i style="width:${b[2]}%;background:var(--ac)"></i></div></div>`).join('');
+ const wk=[["Crop to Shape ▸ Oval",38],["Edit ও Remove Hyperlink".replace('ও','&'),31],[L==='bn'?'প্ল্যাটফর্মভেদে পার্থক্য':'Platform differences',27]].map(([n,v])=>`<div style="margin:8px 0"><div class="mu">${n} — ${v}% ${t('cant')}</div><div class="bar"><i style="width:${v}%;background:var(--bad)"></i></div></div>`).join('');
+ const au=[["09:12","Rahim",["চেকলিস্ট ৫ পরিবর্তন","Changed checklist item 5"]],["09:40","Mr. Karim",["ক্লাস ৩ প্রকাশ","Published Class 3"]],["10:05","Admin",["ব্যাচ D-তে শিক্ষক যোগ","Added teacher to Batch D"]]].map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${x(r[2])}</td></tr>`).join('');
+ const pm=[['f1','✓','✓','✓'],['f2','—','✓','✓'],['f3','—',L==='bn'?'নিজের ব্যাচ':'Own batches',L==='bn'?'সব':'All'],['f4','—','—','✓']].map(r=>`<tr><td>${t(r[0])}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('');
+ return `<h1>${t('ah')}</h1><div class="g g4">${k}</div>${nt('na1')}
+ <div class="g g2" style="margin-top:14px"><div class="cd"><h2>🏫 ${t('bc')}</h2>${bt}</div><div class="cd"><h2>📉 ${t('wk')}</h2>${wk}</div></div>
+ <div class="g g2"><div class="cd"><h2>🧾 ${t('au')}</h2><div class="sc"><table>${au}</table></div>${nt('na2')}</div>
+ <div class="cd"><h2>🔑 ${t('pm')}</h2><div class="sc"><table><tr><th></th><th>${t('student')}</th><th>${t('teacher')}</th><th>${t('admin')}</th></tr>${pm}</table></div></div></div>`}
+function render(){
+ document.getElementById('tabs').innerHTML=['student','teacher','admin'].map(r=>`<button class="${R===r?'on':''}" onclick="setR('${r}')">${t(r)}</button>`).join('');
+ document.getElementById('lb').className=L==='bn'?'on':'';document.getElementById('le').className=L==='en'?'on':'';
+ document.getElementById('nb').textContent=t(N?'notes':'notesOff');
+ document.getElementById('ob').textContent=t(OFF?'offl':'onl');
+ document.querySelectorAll('[data-k]').forEach(e=>e.textContent=t(e.dataset.k));
+ document.getElementById('app').innerHTML=(OFF?`<p class="note" style="margin:0 0 14px;border-color:var(--md)">📴 ${t('offb')} (${pend} ${t('pend')})</p>`:syn?`<p class="note" style="margin:0 0 14px;border-color:var(--ok)">✅ ${syn} ${t('synd')}</p>`:'')+(N?`<p class="note" style="margin:0 0 14px">ⓘ ${t('intro')}</p>`:'')+({student,teacher,admin}[R])();
+}
+render();
+</script>
+</body>
+</html>
